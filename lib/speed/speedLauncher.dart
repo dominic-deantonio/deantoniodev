@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:deantoniodev/home/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deantoniodev/speed/models/speedController.dart';
@@ -25,24 +26,21 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: game == null
-            ? AppBar(
-                leading: IconButton(
-                  icon: Icon(Icons.home),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                backgroundColor: Colors.purple,
-                title: Text('Play Speed'),
-                centerTitle: true,
-              )
-            : null,
-        body: game ?? getStartMenu(),
-      ),
+    return Scaffold(
+      appBar: game == null
+          ? AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.home),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              backgroundColor: Colors.purple,
+              title: Text('Play Speed'),
+              centerTitle: true,
+            )
+          : null,
+      body: game ?? getStartMenu(),
     );
   }
 
@@ -53,7 +51,7 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
         children: [
           Container(
             width: 400,
-            height: 180,
+//            height: 180,
             child: countingDown ? countdownWidget() : settingsWidget(),
           ),
           SizedBox(height: 100),
@@ -84,14 +82,14 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
 
   Widget settingsWidget() {
     return Card(
-      color: Colors.grey[100],
+      color: Colors.red,
       elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             Text('Settings'),
-            debuggingWidget(),
+//            debuggingWidget(),
 //            autoDrawWidget(),
             aiSpeedWidget(),
           ],

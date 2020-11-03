@@ -1,3 +1,4 @@
+import 'package:deantoniodev/home/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deantoniodev/speed/models/speedController.dart';
@@ -37,14 +38,14 @@ class SpeedView extends StatelessWidget {
                         onPressed: () => game.toggleGamePause(),
                       ),
                     )
-                  : Container(),
-              game.widget.devModeOn
-                  ? Tooltip(
-                      message: 'Ends the game with the player as the winner.',
-                      child: IconButton(
-                        icon: Icon(Icons.stop),
-                        onPressed: () => game.winGame("player"),
-                      ),
+                  : Container(),game.widget.devModeOn
+          ? Tooltip(
+        message: 'Ends the game with the player as the winner.',
+        child: IconButton(
+          icon: Icon(Icons.stop),
+          onPressed: () => game.winGame("player"),
+        ),
+
                     )
                   : Container()
             ],
