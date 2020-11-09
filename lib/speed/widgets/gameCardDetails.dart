@@ -22,10 +22,4 @@ class GameCardDetails {
     this.isFaceUp = isFaceUp ?? details.isFaceUp;
     this.canDrag = canDrag ?? details.canDrag;
   }
-//
-//  @override
-//  String toString() {
-//    String out = '\nRank: ${this.rank}' + '\nSuit: ${this.suit}' + '\nIs face up: ${this.isFaceUp}' + '\nCan drag: ${this.canDrag}';
-//    return out;
-//  }
 }

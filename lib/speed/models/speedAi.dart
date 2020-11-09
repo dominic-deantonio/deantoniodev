@@ -7,15 +7,24 @@ import 'speedController.dart';
 class SpeedAi {
   SpeedControllerState game;
   List<int> speeds = [10000, 8000, 4000, 3000, 1000];
+  bool shouldStop = false;
+
+  dispose() {
+    shouldStop = true;
+  }
 
   SpeedAi(SpeedControllerState game) {
     this.game = game;
 
-
     Duration duration = Duration(milliseconds: speeds[game.aiDifficultyIndex]);
     Timer.periodic(duration, (timer) {
-      if (!game.isPaused && game.getWinner()==null) {
-        play();
+      if (!shouldStop) {
+        if (!game.isPaused && game.getWinner() == null) {
+          play();
+        }
+      }else{
+        timer.cancel();
+//        print('Killed the AI');
       }
     });
   }

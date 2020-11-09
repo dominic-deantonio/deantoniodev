@@ -1,61 +1,67 @@
-import 'package:deantoniodev/home/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deantoniodev/speed/models/speedController.dart';
 import 'package:deantoniodev/speed/widgets/cardPile.dart';
-import 'package:deantoniodev/speed/widgets/gameCard.dart';
-
-import '../../main.dart';
 
 // Receives callbacks and variables to monitor from the controller.
 class SpeedView extends StatelessWidget {
   final SpeedControllerState game;
+  final centerPileText = 'Draw one';
+  final myPileText = 'cards left';
 
   SpeedView({this.game});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {
-                game.winGame('player');
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
-              },
-            ),
-            backgroundColor: Colors.purple,
-            title: Text('Speed'),
-            centerTitle: true,
-            actions: [
-              game.getWinner() == null
-                  ? Tooltip(
-                      message: game.isPaused ? 'Resume' : 'Pause',
-                      child: IconButton(
-                        icon: Icon(game.isPaused ? Icons.play_arrow : Icons.pause),
-                        onPressed: () => game.toggleGamePause(),
-                      ),
-                    )
-                  : Container(),game.widget.devModeOn
-          ? Tooltip(
-        message: 'Ends the game with the player as the winner.',
-        child: IconButton(
-          icon: Icon(Icons.stop),
-          onPressed: () => game.winGame("player"),
-        ),
-
-                    )
-                  : Container()
-            ],
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'Speed',
+            style: Theme.of(context).textTheme.headline6,
           ),
-          body: game.isPaused
-              ? getPauseView()
-              : game.getWinner() == null
-                  ? getGame()
-                  : getWinLoseScreen()),
-    );
+          centerTitle: true,
+          actions: [
+            getPauseButton(),
+            getEndGameButton("player"),
+            getEndGameButton("opponent"),
+          ],
+        ),
+        body: game.isPaused
+            ? getPauseView()
+            : game.getWinner() == null
+                ? getGame()
+                : getWinLoseScreen());
+  }
+
+  Widget getPauseButton() {
+    if (game.getWinner() == null) {
+      return Tooltip(
+        message: game.isPaused ? 'Resume' : 'Pause',
+        child: FlatButton(
+          child: Icon(game.isPaused ? Icons.play_arrow : Icons.pause),
+          onPressed: () => game.toggleGamePause(),
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  // If using dev mode and the game is not over get the stop button
+  Widget getEndGameButton(String winner) {
+    if (game.widget.devModeOn && game.getWinner() == null) {
+      return Tooltip(
+        message: 'Ends the game with the $winner as the winner.',
+        child: FlatButton(
+          child: Icon(winner == "player" ? Icons.thumb_up : Icons.thumb_down),
+          onPressed: () => game.winGame(winner),
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 
   Widget getGame() {
@@ -68,12 +74,18 @@ class SpeedView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 getOpponentCards(constraints),
-                Text('Opponent ${game.opponentRequestsCard ? ' (requesting card)' : ''}'),
+                Text(
+                  'Opponent ${game.opponentRequestsCard ? ' (requesting card)' : ''}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
                 Flexible(child: Container()),
                 getCenterCards(constraints),
                 Flexible(child: Container()),
-                Text('Player ${game.playerRequestsCard ? ' (requesting card)' : ''}'),
                 getPlayerCards(constraints),
+                Text(
+                  'You ${game.playerRequestsCard ? ' (requesting card)' : ''}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
               ],
             ),
           ),
@@ -90,13 +102,7 @@ class SpeedView extends StatelessWidget {
         children: [
           for (var card in game.playerHand) Flexible(child: card),
           SizedBox(width: constraints.maxWidth / 30),
-          Flexible(
-            child: CardPile(
-              cards: game.playerPile,
-              title: 'Player pile',
-              onPressed: () => game.transferFromPileToHand(fromPile: game.playerPile, toPile: game.playerHand),
-            ),
-          ),
+          Flexible(child: CardPile(cards: game.playerPile, title: myPileText)),
         ],
       ),
     );
@@ -109,17 +115,18 @@ class SpeedView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Flexible(
-              child: CardPile(
-            cards: game.stuckPileLeft,
-            title: 'Click if stuck',
-            onPressed: () => game.toggleCardRequest(true, !game.playerRequestsCard), //toggles the request
-          )),
+            child: CardPile(
+              cards: game.stuckPileLeft,
+              title: centerPileText,
+              onPressed: () => game.toggleCardRequest(true, !game.playerRequestsCard), //toggles the request
+            ),
+          ),
           Flexible(child: game.receiverPileLeft[0]),
           Flexible(child: game.receiverPileRight[0]),
           Flexible(
             child: CardPile(
               cards: game.stuckPileRight,
-              title: 'Click if stuck',
+              title: centerPileText,
               onPressed: () => game.toggleCardRequest(true, !game.playerRequestsCard), //toggles the request
             ),
           ),
@@ -134,15 +141,7 @@ class SpeedView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(
-            child: CardPile(
-              cards: game.opponentPile,
-              title: 'Opponent pile',
-              onPressed: () {
-                game.transferFromPileToHand(fromPile: game.opponentPile, toPile: game.opponentHand);
-              },
-            ),
-          ),
+          Flexible(child: CardPile(cards: game.opponentPile, title: myPileText)),
           SizedBox(width: constraints.maxWidth / 30),
           for (var card in game.opponentHand) Flexible(child: card),
         ],
@@ -156,15 +155,16 @@ class SpeedView extends StatelessWidget {
   Widget getPauseView() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          color: Colors.grey[900],
-          child: Center(
-            child: Text(
-              'Paused',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 40),
+        return Card(
+          child: Container(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            child: Center(
+              child: Text(
+                'Paused',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headline3,
+              ),
             ),
           ),
         );
@@ -178,7 +178,6 @@ class SpeedView extends StatelessWidget {
         return Container(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
-          color: Colors.green,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -186,24 +185,23 @@ class SpeedView extends StatelessWidget {
                 Text(
                   game.getWinner() == 'player' ? 'You Win!' : 'You Lose!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 40),
+                  style: Theme.of(context).textTheme.headline3,
                 ),
                 Column(
                   children: [
                     Container(
                       width: 140,
-                      child: MaterialButton(
+                      child: RaisedButton(
                         onPressed: () => game.widget.startNewGame(),
                         child: Text('Play again'),
-                        color: Colors.white,
                       ),
                     ),
+                    SizedBox(height: 10),
                     Container(
                       width: 140,
                       child: MaterialButton(
                         onPressed: () => game.widget.backToSettings(),
                         child: Text('Change settings'),
-                        color: Colors.white,
                       ),
                     ),
                   ],

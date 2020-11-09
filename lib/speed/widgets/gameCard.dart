@@ -63,10 +63,7 @@ class _GameCardState extends State<GameCard> {
                     elevation: 15,
                   ),
                 ),
-                childWhenDragging: Card(
-                  color: Colors.grey[200],
-                  elevation: 0,
-                ),
+                childWhenDragging: Card(color: Colors.transparent),
                 child: DragTarget<GameCard>(
                   onAccept: (d) => widget._onIncomingCardAccepted(d),
                   onWillAccept: (incoming) => widget._onWillAcceptDrag(incoming),

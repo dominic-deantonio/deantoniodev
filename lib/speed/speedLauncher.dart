@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:deantoniodev/home/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:deantoniodev/speed/models/speedController.dart';
-
-import '../main.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SpeedLauncher extends StatefulWidget {
   @override
@@ -16,7 +12,6 @@ class SpeedLauncher extends StatefulWidget {
 class _SpeedLauncherState extends State<SpeedLauncher> {
   SpeedController game;
   double difficulty = 3;
-  bool autoDraw = true;
   bool isDevMode = false;
   int countDown = 3;
   Timer timer;
@@ -25,23 +20,15 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
   final List<String> difficulties = ['Baby', 'Casual', 'Goldilocks', 'Tough', 'Masochist'];
 
   @override
+  void dispose() {
+    timer?.cancel(); // Cancel the timer if it is null
+    game = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: game == null
-          ? AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.home),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              backgroundColor: Colors.purple,
-              title: Text('Play Speed'),
-              centerTitle: true,
-            )
-          : null,
-      body: game ?? getStartMenu(),
-    );
+    return game ?? getStartMenu();
   }
 
   Widget getStartMenu() {
@@ -49,51 +36,57 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text('Play', style: Theme.of(context).textTheme.headline4),
+          Text('Speed', style: Theme.of(context).textTheme.headline2),
+          SizedBox(height: 50),
           Container(
-            width: 400,
-//            height: 180,
-            child: countingDown ? countdownWidget() : settingsWidget(),
+            width: 350,
+            child: countingDown ? countdownWidget() : Card(child: settingsWidget()),
           ),
-          SizedBox(height: 100),
+          SizedBox(height: 80),
+          countingDown
+              ? Container()
+              : Container(
+                  width: 130,
+                  child: RaisedButton(
+                    onPressed: startCountDown,
+                    child: Text('Start'),
+                  ),
+                ),
+          SizedBox(height: 10),
           countingDown
               ? Container()
               : Container(
                   width: 130,
                   child: MaterialButton(
-                    onPressed: startCountDown,
-                    child: Text('Start'),
-                    color: Colors.green[100],
+                    onPressed: _launchURL,
+                    child: Text('How to play'),
                   ),
                 ),
-//          countingDown
-//              ? Container()
-//              : Container(
-//                  width: 130,
-//                  child: MaterialButton(
-//                    onPressed: () {},
-//                    child: Text('How to play'),
-//                    color: Colors.grey[100],
-//                  ),
-//                ),
         ],
       ),
     );
   }
 
+  _launchURL() async {
+    const url = 'https://youtu.be/vqtuntlmn6U';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   Widget settingsWidget() {
-    return Card(
-      color: Colors.red,
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Text('Settings'),
-//            debuggingWidget(),
-//            autoDrawWidget(),
-            aiSpeedWidget(),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 30, left: 30, bottom: 30, right:10),
+      child: Column(
+        children: [
+          Text('Settings'),
+          SizedBox(height: 20),
+//          debuggingWidget(),
+          aiSpeedWidget(),
+        ],
       ),
     );
   }
@@ -101,7 +94,7 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
   Widget countdownWidget() {
     return Text(
       '$countDown',
-      style: TextStyle(fontSize: 100, fontWeight: FontWeight.bold),
+      style: Theme.of(context).textTheme.headline1,
       textAlign: TextAlign.center,
     );
   }
@@ -113,35 +106,13 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text('AI Speed'),
-          Row(
-            children: [
-              Icon(Icons.play_arrow),
-              Slider(
-                onChanged: (v) => setState(() => difficulty = v),
-                value: difficulty,
-                min: 1,
-                max: 5,
-                divisions: 4,
-                label: difficulties[difficulty.floor() - 1],
-              ),
-              Icon(Icons.fast_forward),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget autoDrawWidget() {
-    return Tooltip(
-      message: 'When on, immediately draws another card from your pile.',
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Auto draw'),
-          Switch(
-            onChanged: (b) => setState(() => autoDraw = !autoDraw),
-            value: autoDraw,
+          Slider(
+            onChanged: (v) => setState(() => difficulty = v),
+            value: difficulty,
+            min: 1,
+            max: 5,
+            divisions: 4,
+            label: difficulties[difficulty.floor() - 1],
           ),
         ],
       ),

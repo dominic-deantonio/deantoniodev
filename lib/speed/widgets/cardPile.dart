@@ -8,7 +8,7 @@ class CardPile extends StatefulWidget {
   String title;
   Function onPressed;
 
-  CardPile({List<GameCard> cards, String title, Function onPressed}) {
+  CardPile({this.cards, this.title, Function onPressed}) {
     this.cards = cards;
     this.title = title;
     this.onPressed = onPressed;
@@ -27,21 +27,26 @@ class _CardPileState extends State<CardPile> {
       aspectRatio: 62 / 88,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return Card(
-            color: Colors.cyanAccent,
-            child: TextButton(
-              onPressed: () => setState(() {
-                widget.onPressed();
-              }),
-              child: label(constraints),
-            ),
-          );
+          return Card(child: getButton(constraints));
         },
       ),
     );
   }
 
-  Widget label(BoxConstraints constraints) {
+  Widget getButton(BoxConstraints constraints) {
+    if (widget.onPressed != null) {
+      return FlatButton(
+        onPressed: () => setState(() {
+          widget.onPressed();
+        }),
+        child: getLabel(constraints),
+      );
+    }else{
+      return getLabel(constraints);
+    }
+  }
+
+  Widget getLabel(BoxConstraints constraints) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [

@@ -21,7 +21,6 @@ class SpeedController extends StatefulWidget {
 class SpeedControllerState extends State<SpeedController> {
   // All vars regarding state live here and this object is passed into the children ai object and view widget to responsively rebuild and call functions
 
-  bool shouldAutoDraw = true; // Is toggled by the toggleAutoDraw function
   bool isPaused = false; // Is toggled by the togglePause function
   bool playerRequestsCard = false, opponentRequestsCard = false; // These represent the players' requests for new center cards
   int aiDifficultyIndex; // Is used by the AI to select the play speed
@@ -146,7 +145,7 @@ class SpeedControllerState extends State<SpeedController> {
       incoming.setOnIncomingCardAccepted((newCard) => doAcceptCard(receiverPile, newCard));
 
       // Auto draw a new card from the pile (if turned on)
-      if (shouldAutoDraw) transferCardsBetweenPiles(fromPile: drawFromPile, toPile: fromHand, amount: 1);
+      transferCardsBetweenPiles(fromPile: drawFromPile, toPile: fromHand, amount: 1);
     });
   }
 
@@ -233,13 +232,6 @@ class SpeedControllerState extends State<SpeedController> {
     });
   }
 
-  // Set the should auto draw to true or false.
-  void toggleAutoDraw() {
-    setState(() {
-      shouldAutoDraw = !shouldAutoDraw;
-    });
-  }
-
   void toggleGamePause() {
     setState(() {
       if (getWinner() == null) {
@@ -286,18 +278,13 @@ class SpeedControllerState extends State<SpeedController> {
   FocusNode kbFocusNode = FocusNode();
 
   @override
-  Widget build(BuildContext context) {
-    // This should just instantiate the view and pass in the variables for the view to track and rebuild from
-    // The methods here are called by the view (user) and the ai or other player
+  void dispose() {
+    ai.dispose();
+    super.dispose();
+  }
 
-    return RawKeyboardListener(
-      onKey: (event) {
-        if (event is RawKeyDownEvent) {
-          if (event.logicalKey.keyLabel == ' ') toggleGamePause();
-        }
-      },
-      focusNode: kbFocusNode,
-      child: SpeedView(game: this),
-    );
+  @override
+  Widget build(BuildContext context) {
+    return SpeedView(game: this);
   }
 }
