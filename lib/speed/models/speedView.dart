@@ -16,6 +16,7 @@ class SpeedView extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: false,
           elevation: 0,
           title: Text(
             'Speed',

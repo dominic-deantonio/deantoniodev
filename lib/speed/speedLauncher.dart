@@ -38,12 +38,10 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
         children: [
           Text('Play', style: Theme.of(context).textTheme.headline4),
           Text('Speed', style: Theme.of(context).textTheme.headline2),
-          SizedBox(height: 50),
           Container(
             width: 350,
             child: countingDown ? countdownWidget() : Card(child: settingsWidget()),
           ),
-          SizedBox(height: 80),
           countingDown
               ? Container()
               : Container(
@@ -53,7 +51,6 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
                     child: Text('Start'),
                   ),
                 ),
-          SizedBox(height: 10),
           countingDown
               ? Container()
               : Container(
@@ -79,11 +76,10 @@ class _SpeedLauncherState extends State<SpeedLauncher> {
 
   Widget settingsWidget() {
     return Padding(
-      padding: const EdgeInsets.only(top: 30, left: 30, bottom: 30, right:10),
+      padding: const EdgeInsets.only(top: 20, left: 20, bottom: 20, right:0),
       child: Column(
         children: [
           Text('Settings'),
-          SizedBox(height: 20),
 //          debuggingWidget(),
           aiSpeedWidget(),
         ],
