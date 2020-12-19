@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 class Gif{
 
-  String url;
+  String imageUrl;
   String description;
 
-  Gif({this.url, this.description});
+  Gif({this.imageUrl, this.description});
 
 }

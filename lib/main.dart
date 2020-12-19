@@ -26,8 +26,8 @@ class AppState extends State<App> {
   PageController projectsPageController = PageController();
   FocusNode node = FocusNode();
   Project currentProject;
-
   List<Project> projects = ProjectData.projects;
+  bool didLoad = false;
 
   // Methods----------------------------------------------
   void scrollToPage(int page) {
@@ -56,12 +56,30 @@ class AppState extends State<App> {
   void switchToProject(Project p) {
     setState(() {
       currentProject = p;
+      projectsPageController.animateToPage(0, curve: Curves.ease, duration : Duration(milliseconds: 200),  );
     });
+  }
+
+  Future<void> _initialize() async {
+    currentProject = projects[0]; // need a default project
+    projects.forEach((project) {
+      precacheImage(NetworkImage(project.imageUrl), context);
+      project.gifs.forEach((gif) {
+        precacheImage(NetworkImage(gif.imageUrl), context);
+      });
+    });
+//    await Future.delayed(const Duration(seconds: 3), () => "1").then((value) => {});
+    return Future(() {});
   }
 
   @override
   void initState() {
-    currentProject = projects[0];
+    _initialize().whenComplete(() {
+      setState(() {
+        didLoad = true;
+      });
+    });
+
     super.initState();
   }
 
@@ -74,35 +92,41 @@ class AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: currentTheme,
-      home: RawKeyboardListener(
-        focusNode: node,
-        autofocus: true,
-        onKey: (event) {
-          if (event is RawKeyDownEvent) {
-            _navigatePagesWithDirectionalPad(event);
-            _navigateProjectsWithDirectionalPad(event);
-          }
-        },
-        child: LayoutBuilder(
-          builder: (_, constraints) {
-            return Scaffold(
-              body: Scrollbar(
-                child: Stack(
+    if (!didLoad) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    } else {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: currentTheme,
+        home: RawKeyboardListener(
+          focusNode: node,
+          autofocus: true,
+          onKey: (event) {
+            if (event is RawKeyDownEvent) {
+              _navigatePagesWithDirectionalPad(event);
+              _navigateProjectsWithDirectionalPad(event);
+            }
+          },
+          child: LayoutBuilder(
+            builder: (_, constraints) {
+              return Scaffold(
+                body: Stack(
                   children: [
                     _getBackgroundImage(constraints),
                     _getGradient(),
                     Center(child: _getVersion(constraints, this)),
                   ],
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   // Private methods--------------------------------------
